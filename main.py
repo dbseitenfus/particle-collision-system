@@ -6,7 +6,7 @@ import math
 from pygame.math import Vector2
 
 particles = []
-WIDTH, HEIGHT = 1000, 1000
+WIDTH, HEIGHT = 800, 800
 grid = []
 grid_size = 50
 
