@@ -6,7 +6,7 @@ import math
 from pygame.math import Vector2
 
 particles = []
-WIDTH, HEIGHT = 500, 500
+WIDTH, HEIGHT = 800, 800
 
 def add_particle(position, direction, speed, radius, color):
     particles.append(Particle(position, direction, speed, radius, color))
@@ -22,13 +22,8 @@ def draw_particles():
         particle.draw(screen)
         particle.guidance([0, WIDTH, 0, HEIGHT], particles)
         particle.update_pos()
-           
 
-def main():
-    bg = pygame.Surface((WIDTH, HEIGHT))
-    bg.fill((20, 20, 20))
-
-
+def create_particles():
     for i in range(2000):
         pos = (random.randint(0, WIDTH), random.randint(0, HEIGHT))
         angle = random.uniform(0, 2 * math.pi)  
@@ -36,8 +31,10 @@ def main():
         speed = 3
         radius = 2
         add_particle(pos, dir, speed, radius, (255, 255, 255))
- 
-    
+
+def render():
+    bg = pygame.Surface((WIDTH, HEIGHT))
+    bg.fill((20, 20, 20))
     running = True
     while running:
         for event in pygame.event.get():
@@ -48,21 +45,20 @@ def main():
                     running = False
 
         screen.blit(bg, (0, 0))
-
         draw_particles()
-
         clock.tick(30)
         pygame.display.update()
+           
 
+def main():
+    create_particles()
+    render()
     pygame.quit()
     exit()
 
 if __name__ == "__main__":
-
     pygame.init()
-
-    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    WIDTH, HEIGHT = pygame.display.get_surface().get_size()
+    screen = pygame.display.set_mode((WIDTH,HEIGHT))
     pygame.display.set_caption("Particle Simulation")
     clock = pygame.time.Clock()
 
