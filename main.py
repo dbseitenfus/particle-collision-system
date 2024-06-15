@@ -6,9 +6,22 @@ import math
 from pygame.math import Vector2
 
 particles = []
-WIDTH, HEIGHT = 800, 800
+WIDTH, HEIGHT = 1000, 1000
 grid = []
 grid_size = 50
+
+def draw_partitions(screen):
+    rows = HEIGHT // grid_size 
+    columns = WIDTH // grid_size
+    
+    for i in range(rows + 1):
+        x = i * grid_size
+        pygame.draw.line(screen, (0, 0, 255), (x, 0), (x, HEIGHT))
+    
+    for j in range(columns + 1):
+        y = j * grid_size
+        pygame.draw.line(screen, (0, 0, 255), (0, y), (WIDTH, y))
+    
 
 def add_particle_to_grid(particle):
     i, j = get_particle_position_on_grid(particle)
@@ -71,6 +84,7 @@ def render():
         screen.blit(bg, (0, 0))
         clear_grid()
         draw_particles()
+        draw_partitions(screen)
         clock.tick(30)
         pygame.display.update()
            
