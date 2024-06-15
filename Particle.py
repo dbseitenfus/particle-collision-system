@@ -1,4 +1,3 @@
-from functions_geometric import euclidean_distance
 import pygame
 from pygame.math import Vector2
 
