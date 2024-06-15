@@ -1,5 +1,6 @@
 import pygame
 from pygame.math import Vector2
+import math
 
 class Particle:
     def __init__(self, position, direction, speed, radius, color):
@@ -18,8 +19,8 @@ class Particle:
     def check_collision(self, particles):
         if self.alive:  # Verificando se a partícula está viva antes de verificar colisão
             for particle in particles:
-                # if particle.pos != self.pos and self.is_collided(particle):
-                #     self.handle_collision(particle)
+                if particle.pos != self.pos and self.is_collided(particle):
+                    self.handle_collision(particle)
                     break
     
     def guidance(self, box, particles):
@@ -40,8 +41,41 @@ class Particle:
 
     def handle_collision(self, particle):
         if self.alive:  # Verificando se a partícula está viva antes de manipular a colisão
-            # self.increase_size()
-            particle.remove_particle()
+            normal = self.pos - particle.pos
+            normal = normal.normalize()
+            
+            # Vetor tangente
+            tangent = Vector2(-normal.y, normal.x)
+            
+            # Projeção das velocidades no vetor normal e tangente
+            v1n = self.dir.dot(normal)
+            v1t = self.dir.dot(tangent)
+            v2n = particle.dir.dot(normal)
+            v2t = particle.dir.dot(tangent)
+            
+            # As velocidades tangenciais permanecem as mesmas
+            v1t_new = v1t
+            v2t_new = v2t
+            
+            # Troca das velocidades normais
+            v1n_new = v2n
+            v2n_new = v1n
+            
+            # Convertendo escalares para vetores
+            v1n_new_vec = v1n_new * normal
+            v1t_new_vec = v1t_new * tangent
+            v2n_new_vec = v2n_new * normal
+            v2t_new_vec = v2t_new * tangent
+            
+            # Novas direções
+            self.dir = v1n_new_vec + v1t_new_vec
+            particle.dir = v2n_new_vec + v2t_new_vec
+            
+            # Corrigir as posições para evitar sobreposição
+            overlap = (self.radius + particle.radius) - self.pos.distance_to(particle.pos)
+            correction = normal * (overlap / 2)
+            self.pos += correction
+            particle.pos -= correction
     
     def increase_size(self):
         self.radius += 5
@@ -50,8 +84,14 @@ class Particle:
         self.alive = False  # Definindo a partícula como morta
         # self.pos = Vector2(-1000, -1000)
 
+    def euclidean_distance(self, point_1, point_2):
+        s = 0.0
+        for i in range(len(point_1)):
+            s += ((point_1[i] - point_2[i]) ** 2)
+        return s ** 0.5
+
     def is_collided(self, particle):
-        return self.alive and particle.alive and euclidean_distance(self.pos, particle.pos) <= self.radius + particle.radius
+        return self.alive and particle.alive and self.euclidean_distance(self.pos, particle.pos) <= self.radius + particle.radius
 
     def update_pos(self):
         if self.alive:  # Verificando se a partícula está viva antes de atualizar sua posição
@@ -60,9 +100,4 @@ class Particle:
     def change_pos(self, x, y):
         self.pos = Vector2(x, y)
     
-    def euclidean_distance(point_1, point_2):
-        s = 0.0
-        for i in range(len(point_1)):
-            s += ((point_1[i] - point_2[i]) ** 2)
-        return s ** 0.5
 
