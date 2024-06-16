@@ -4,45 +4,12 @@ import random
 from sys import exit
 import math
 from pygame.math import Vector2
+from particles_manager import *
 
 particles = []
-WIDTH, HEIGHT = 800, 800
-grid = []
-grid_size = 50
-
-def draw_partitions(screen):
-    rows = HEIGHT // grid_size 
-    columns = WIDTH // grid_size
+WIDTH, HEIGHT = 700, 700
+particles_manager = ParticlesManager(WIDTH, HEIGHT, 10)
     
-    for i in range(rows + 1):
-        x = i * grid_size
-        pygame.draw.line(screen, (0, 0, 255), (x, 0), (x, HEIGHT))
-    
-    for j in range(columns + 1):
-        y = j * grid_size
-        pygame.draw.line(screen, (0, 0, 255), (0, y), (WIDTH, y))
-    
-
-def add_particle_to_grid(particle):
-    i, j = get_particle_position_on_grid(particle)
-    grid[i][j].append(particle)
-
-def get_particle_position_on_grid(particle):
-    x = particle.pos.x
-    y = particle.pos.y
-    i = int(x//grid_size)-1 if x > 0 else 0
-    j = int(y//grid_size)-1 if y > 0 else 0
-    return (i,j)
-    
-def clear_grid():
-    grid.clear()
-    rows = HEIGHT//grid_size 
-    columns = WIDTH//grid_size 
-    for i in range(rows):
-        grid.append([])
-        for j in range(columns):
-            grid[i].append([])
-
 def add_particle(position, direction, speed, radius, color):
     particles.append(Particle(position, direction, speed, radius, color))
 
@@ -56,17 +23,18 @@ def draw_particles():
     for particle in particles:
         particle.draw(screen)
         particle.update_pos()
-        add_particle_to_grid(particle)
-        i,j = get_particle_position_on_grid(particle)
-        particle.guidance([0, WIDTH, 0, HEIGHT], grid[i][j])
+        particles_manager.add_particle_to_grid(particle)
+        i,j = particles_manager.get_particle_position_on_grid(particle)
+        if i < particles_manager.columns_size and j < particles_manager.rows_size:
+            particle.guidance([0, WIDTH, 0, HEIGHT], particles_manager.grid[i][j])
 
 def create_particles():
-    for i in range(5000):
-        pos = (random.randint(0, WIDTH), random.randint(0, HEIGHT))
+    for i in range(7000):
+        pos = (WIDTH//2,HEIGHT//2)
         angle = random.uniform(0, 2 * math.pi)  
         dir = Vector2(math.cos(angle), math.sin(angle))
-        speed = 2
-        radius = 2
+        speed = 3
+        radius = 1
         add_particle(pos, dir, speed, radius, (255, 255, 255))
 
 def render():
@@ -82,9 +50,9 @@ def render():
                     running = False
 
         screen.blit(bg, (0, 0))
-        clear_grid()
+        particles_manager.clear_grid()
         draw_particles()
-        draw_partitions(screen)
+        # draw_partitions(screen)
         clock.tick(30)
         pygame.display.update()
            
